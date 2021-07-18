@@ -1,0 +1,54 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body> -->
+  <div>
+    <p style='font-size:16px; color: black;'>
+      Account Verification
+    </p>
+  </div>
+  <p style='font-size:22px; color: black;'>
+    Welcome!
+  </p>
+  <p style='font-size:18px; color: black;'>
+    <strong>
+      Hi {{username}}, Verify your email to complete account registration
+    </strong>
+  </p>
+  </br>
+  <a href='http://localhost:8000/api/account-verification/{{encoded_id}}/{{token}}'>
+    <button style='
+      padding: 10px 20px;
+      margin: 1rem;
+      width: 150px;
+      background-color: rgb(22, 103, 184);
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;'
+    >
+      Verify Account
+    </button>
+  </a>
+  </br>
+  <!-- ID: {{encoded_id}}
+  Activation link not working?
+  Alternative Link: http://localhost:8000/api/account-verification/{{encoded_id}}/{{token}}
+   -->
+  <p style='font-size:18px; color: black;'>
+    Visit homepage @ https://www.delletran.com
+  </p>
+  </br>
+  <p style='font-size:14px; color: black;'>
+    All rights reserved.
+  </p>
+  <p style='font-size:16px; color: black;'>
+    © 2021 delletran 
+  </p>
+<!-- </body>
+</html> -->

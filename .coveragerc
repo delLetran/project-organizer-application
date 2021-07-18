@@ -1,0 +1,39 @@
+
+[run]
+source = .
+omit = 
+  ./venv/*
+  *tests*
+  *apps.py
+  *manage.py
+  *__init__.py
+  *migrations*
+  *asgi*
+  *wsgi*
+  *admin.py
+  *urls.py
+  *tokens.py
+
+[report]
+omit = 
+  ./venv/*,
+  *tests*
+  *apps.py
+  *manage.py
+  *__init__.py
+  *migrations*
+  *asgi*
+  *wsgi*
+  *admin.py
+  *urls.py
+  *tokens.py
+
+exclude_lines =
+  def __unicode__
+  if setttings.TESTING
+  def __repr__
+  def __str__
+  rest_framework.decorators
+  
+show_missing = true
+
