@@ -46,8 +46,8 @@ class Project(models.Model):
   created_by = models.ForeignKey(USER, related_name='created_by', blank=True, null=True, on_delete=models.CASCADE)
   status =  models.PositiveSmallIntegerField(_("project status"), default=STATUS.PO, choices=STATUS.choices)
   project_type =  models.PositiveSmallIntegerField(_("project type"), default=TYPE.SOFTDEV, choices=TYPE.choices)
-  collaborators = models.ManyToManyField( USER, through=COLLABORATOR, through_fields=('project', 'name'), default=[0])
-  # collaborators = models.ManyToManyField( COLLABORATOR, related_name='collaborator', blank=True)
+  # collaborators = models.ManyToManyField( USER, through=COLLABORATOR, through_fields=('project', 'name'), default=[0])
+  collaborators = models.ManyToManyField(COLLABORATOR, related_name='collaborator', verbose_name=_("collaborator"), blank=True)
   activities = models.ManyToManyField(ACTIVITY, related_name='activity', verbose_name=_("activity"), blank=True)
   # notes = models.ManyToManyField(NOTE, related_name='note', verbose_name=_("note"), blank=True, null=True)
 
