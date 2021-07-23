@@ -18,20 +18,24 @@ class CreatedBySerializer(serializers.ModelSerializer):
     fields = [ 'id', 'username', 'job_title']
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+# class ProjectSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = Project
+#     fields = ['id', 'name', 'slug', 'description', 'project_type', 'status', 'created_by', 'collaborators']
+
+# class TaskSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = Task
+#     fields = [ 'id', 'name', 'desciption']
+
+
+class ActivityUpdateSerializer(serializers.ModelSerializer):
   class Meta:
-    model = Project
-    fields = ['id', 'name', 'slug', 'description', 'project_type', 'status', 'created_by', 'collaborators']
-
-class TaskSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Task
-    fields = [ 'id', 'name', 'desciption']
-
-
+    model = Activity
+    fields = ["name", "status", "tasks", "project"]
 class ActivitySerializer(serializers.ModelSerializer):
-  tasks = TaskSerializer(read_only=True, many=True)
-  project = ProjectSerializer(read_only=True)
+  # tasks = TaskSerializer(read_only=True, many=True)
+  # project = ProjectSerializer(read_only=True)
 
 
   class Meta:
@@ -40,7 +44,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
 
 class ActivityCreateSerializer(serializers.ModelSerializer):
-  project = ProjectSerializer(read_only=True)
+  # project = ProjectSerializer(read_only=True)
 
   class Meta:
     model = Activity

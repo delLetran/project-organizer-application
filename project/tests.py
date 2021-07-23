@@ -246,15 +246,15 @@ class ProjectTest(APITestCase):
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
   def _test_create_project_will_add_creator_as_project_admin(self):
-    member = Collaborator.objects.get(pk=1)
+    collaborator = Collaborator.objects.get(pk=1)
     response = self.client.post(
       reverse('project-create'),
       self.test_project2,
       format='json'
     )
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    self.assertEqual(member.member.username, self.test_user1.username)
-    self.assertEqual(member.position, 1)
+    self.assertEqual(collaborator.collaborator.username, self.test_user1.username)
+    self.assertEqual(collaborator.position, 1)
 
   def test_create_existing_project_by_user(self):
     response = self.client.post(
@@ -266,5 +266,5 @@ class ProjectTest(APITestCase):
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-  # def test_add_member(self):
-  #   self.test_project.add_member(test_user2)
+  # def test_add_collaborator(self):
+  #   self.test_project.add_collaborator(test_user2)

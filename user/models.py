@@ -7,10 +7,8 @@ from django.contrib.auth.models import (
   BaseUserManager
 )
 from django.utils.translation import ugettext_lazy as _
-# from django.contrib.auth import get_user_model
 
-# User = get_user_model()
-Project = 'project.Project'
+PROJECT = 'project.Project'
 
 
 class CustomUserManager(BaseUserManager): 
@@ -58,9 +56,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
   is_active = models.BooleanField(default=False)
   birth_date = models.DateField(_("date of birth"), auto_now=False, auto_now_add=False, blank=True, null=True)
   job_title = models.CharField(max_length=50, blank=True, null=True)
-  projects = models.ManyToManyField(Project, verbose_name=_("projects"), related_name='project_list', blank=True)
+  projects = models.ManyToManyField(PROJECT, verbose_name=_("projects"), related_name='project_list', blank=True)
   associates = models.ManyToManyField('CustomUser', verbose_name=_("associates"), blank=True)
-  # joined_projects = models.ManyToManyField(PROJECT, verbose_name=_("projects joined"), related_name='joined_project', default=[0], blank=True)
+  joined_projects = models.ManyToManyField(PROJECT, verbose_name=_("projects joined"), related_name='joined_projects', default=[0], blank=True)
    
   objects = CustomUserManager()
 
@@ -69,6 +67,32 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
   def get_associates(self):
     return self.associates.all()
+
+  def get_associates_id(self):
+    assocs = self.get_associates()
+    assocs_id = []
+    for assoc in assocs:
+      assocs_id.append(assoc.id)
+    return assocs_id
+
+  def get_mutual_associates(self, profile):
+    user_assocs = self.get_associates_id()
+    profile_assocs = profile.get_associates_id()
+    mutual_assocs = list(set(user_assocs).intersection(profile_assocs))
+    return mutual_assocs
+    
+  def get_mutual_associates_details(self, profile):
+    mutual_assocs = self.get_mutual_associates(profile)
+    return CustomUser.objects.filter(pk__in=mutual_assocs)
+    
+  def get_associate_with_mutual_associates_list(self):
+    user_assocs = self.get_associates()
+    mutual_associates = []
+    for user_assoc in user_assocs:
+      profile_list = self.get_mutual_associates_details(user_assoc)
+      if len(profile_list) >= 1:
+        mutual_associates.append((user_assoc, profile_list))
+    return mutual_associates
     
   def __str__(self):
     return self.username

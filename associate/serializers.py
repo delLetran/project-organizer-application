@@ -1,5 +1,7 @@
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 # from django.utils.text import slugify
 
 from rest_framework import serializers
@@ -7,7 +9,10 @@ from rest_framework.fields import CurrentUserDefault
 from rest_framework.validators import UniqueTogetherValidator
 
 User = get_user_model()
-from project.models import Project, ProjectMember
+from project.models import Project
+from collaborator.models import Collaborator
+from .models import Associate
+
 
 # class ChoicesSerializer(serializers.ChoiceField):
 #   def to_representation(self, value):
@@ -26,43 +31,35 @@ from project.models import Project, ProjectMember
 
 
 
-class CreatedBySerializer(serializers.ModelSerializer):
+class AssociateSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    fields = [ 'id', 'username', 'job_title']
+    fields = [ 'id', 'username', 'first_name', 'last_name', 'job_title']
 
-
-class MemberSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
     fields = [ 'id', 'username', 'first_name', 'last_name', 'job_title']
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-  created_by = CreatedBySerializer(read_only=True)
-  status = ChoicesSerializer(choices=Project.STATUS.choices)
-  project_type = ChoicesSerializer(choices=Project.TYPE.choices)
-  members = MemberSerializer(read_only=True, many=True)
-  # schedule = ScheduleSerializer(read_only=True)
-
+class PeerCreateSerializer(serializers.ModelSerializer):
   class Meta:
-    model = Project
-    fields = "__all__"
-    fields = ['id', 'name', 'slug', 'description', 'project_type', 'status', 'created_by', 'members']
-  
-
-
-
-class ProjectCreateSerializer(serializers.ModelSerializer):
-
-  class Meta:
-    model = Project
-    fields = ["name", "description", "status", "project_type", "created_by"]
-    # write_only_fields=['created_by']
+    model = Associate
+    fields = [ 'id', 'sender', 'receiver']
     validators = [
       UniqueTogetherValidator(
-        queryset=Project.objects.all(),
-        fields=('name', 'created_by'),
-        message=_("User has already created a project with this name.")
+        queryset=Associate.objects.all(),
+        fields=('sender', 'receiver'),
+        message=_("User already sent you an invite.")
       )
     ]
+
+  def validate(self, data):
+    has_received_an_invite  = Associate.objects.all().filter(
+      sender=data['receiver'], 
+      receiver=data['sender']
+    ).exists()
+    if has_received_an_invite :
+      raise serializers.ValidationError("User already sent you an invite.")
+    return data
+

@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from .models import Activity
-from .serializers import ActivityCreateSerializer, ActivitySerializer
+from .serializers import ActivityCreateSerializer, ActivityUpdateSerializer, ActivitySerializer
 
 
 
@@ -31,27 +31,30 @@ def activity_details_view(request, id, creator=None, *args, **kwargs):
   serializer = ActivitySerializer(activity) 
   return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def activity_list_view(request, proj_id, *args, **kwargs):
-  activities = get_list_or_404(Project.objects.filter(project=proj_id))
-  serializer = ActivitySerializer(activities, many=True) 
-  return Response(serializer.data)
+@api_view(['GET', 'PUT'])
+def activity_update_view(request, id, *args, **kwargs):
+  activity = get_object_or_404(Activity, id=id)
+  if request.method == 'PUT':
+    serializer = ActivityUpdateSerializer(data=request.data, instance=activity)
+    if serializer.is_valid():
+      serializer.save()
+      activity = get_object_or_404(Activity, id=id)
+      serializer = ActivitySerializer(activity)
+      return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+  if request.method == 'GET':
+    return Response({'test':'GET'}, status=status.HTTP_200_OK)
     
-# @api_view(['GET', 'UPDATE'])
-# def project_update_view(request, slug, *args, **kwargs):
-#   if request.method == 'UPDATE':
-#     return Response({'test':'UPDATE'}, status=status.HTTP_200_OK)
 
-#   if request.method == 'GET':
-#     return Response({'test':'GET'}, status=status.HTTP_200_OK)
-    
 
-# @api_view(['GET', 'DELETE'])
-# def project_delete_view(request, slug, *args, **kwargs):
-#   if request.method == 'DELETE':
-#     return Response({'test':'DELETE'}, status=status.HTTP_200_OK)
+@api_view(['GET', 'DELETE'])
+def activity_delete_view(request, id, *args, **kwargs):
+  activity = get_object_or_404(Activity, id=id)
+  if request.method == 'GET':
+    serializer = ActivitySerializer(activity)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
-#   if request.method == 'GET':
-#     return Response({'test':'GET'}, status=status.HTTP_200_OK)
-
+  if request.method == 'DELETE':
+    activity.delete()
+    return Response({'activity':'Deleted.'}, status=status.HTTP_204_NO_CONTENT)

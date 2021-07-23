@@ -19,14 +19,13 @@ class Associate(models.Model):
   sender = models.ForeignKey(USER, verbose_name=_("sender"), related_name="sender", on_delete=models.DO_NOTHING)
   receiver = models.ForeignKey(USER, verbose_name=_("receiver"), related_name="receiver", on_delete=models.DO_NOTHING)
   is_active = models.BooleanField(_("invitation active"), default=True)
-  status = models.CharField(_("invite status"), max_length=50, choices=STATUS.choices, default=STATUS.ONHOLD)
+  status = models.CharField(_("invite status"), max_length=50, choices=STATUS.choices, blank=True, null=True)
 
-  # assoc_objects = AssociateManager() 
   def __str__(self):
     return f"{str(self.sender)} --> {str(self.receiver)}"
 
   class Meta:
-    unique_together = ['sender', 'receiver']
+    unique_together = [['sender', 'receiver']]
     db_table = ''
     managed = True
     verbose_name = 'Associate'
@@ -35,11 +34,28 @@ class Associate(models.Model):
   def get_sent_invites(self, user):
     return self.objects.filter(sender=user)
 
-  def get_received_invites(self, user):
-    return self.objects.filter(receiver=user)
-
   def get_invite_status(self, pk):
     return self.objects.status(pk=pk)
+
+  def accept_peer_invite(self):
+    self.status = self.STATUS.ACCEPTED
+    self.save()
+    return True
+
+  def create_peer_invite(self, sender, receiver):
+    peer = Associate(
+      sender=sender,
+      receiver=receiver,
+      # status = self.STATUS.ONHOLD
+    )
+    self.save()
+    return True
+  #   invite = self.get_received_invite(user)
+  #   invite.status =  'Accepted'
+  #   return f'{user} peer invite accepted'
+  #   # invite_instance = Associate.objects.get(Associate.objects.filter())
+
+
     
 
 @receiver(pre_save, sender=Associate)
@@ -58,6 +74,9 @@ def post_save_associate(sender, instance, created, *args, **kwargs):
   _sender = instance.sender
   _receiver = instance.receiver
   _status = instance.status
+  if created:
+    instance.status='Waiting' 
+    instance.save()
   if not created:
     if _status=='Accepted':
       _sender.associates.add(_receiver)

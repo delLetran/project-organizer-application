@@ -9,7 +9,6 @@ from rest_framework import status
 
 from .models import Project
 from .serializers import ProjectSerializer, ProjectCreateSerializer
-from .forms import ProjectForm
 from .decorators import decorator_test
 
 
@@ -63,22 +62,6 @@ def project_delete_view(request, slug, *args, **kwargs):
 
   if request.method == 'GET':
     return Response({'test':'GET'}, status=status.HTTP_200_OK)
-
-
-# @api_view(['GET', 'POST'])
-# def project_create_form_view(request, *args, **kwargs):
-#   if request.method == 'POST':
-#     form = ProjectForm(request.data)
-#     if form.is_valid():
-#       form.save(request)
-#       return Response(form.data, status=status.HTTP_201_CREATED)
-#     return Response(form.data, status=status.HTTP_400_BAD_REQUEST)
-
-#   if request.method == 'GET':
-#     form = ProjectForm()
-#     return Response(form.data, status=status.HTTP_200_OK)
-
-
 
 
 

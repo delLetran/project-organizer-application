@@ -113,13 +113,13 @@ def user_update_password_view(request, *args, **kwargs):
     return Response({'token': 'token.key'}, status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET', 'delete'])
 def user_delete_view(request, *args, **kwargs):
   user = get_object_or_404(User, username=request.user)
   if request.method == 'GET':
     serializer = OwnerSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
-  if request.method == 'DELETE':
+  if request.method == 'delete':
     user.delete() 
     return Response(status=status.HTTP_204_NO_CONTENT)
 

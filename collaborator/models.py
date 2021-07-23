@@ -30,12 +30,13 @@ class Collaborator(models.Model):
     PMA = 2, _('Project Manager'),
     PLE = 3, _('Project Leader'), 
     MEM = 4, _('Member'),
-    CUS = 5, _('Custom')
+    SPE = 5, _('Spectator')
 
   class STATUS(models.TextChoices):
     ONHOLD = 'Invited', 
     JOINED = 'Joined',
-    LEAVED = 'Leave',
+    LEAVED = 'Leaved',
+    REMOVED = 'Removed',
     DECLINED = 'Declined'
 
   name = models.ForeignKey(USER, related_name='collaborator', on_delete=models.CASCADE)
@@ -55,30 +56,44 @@ class Collaborator(models.Model):
 
   def __str__(self):
     return f'{self.project} -- {self.name}'
-
+ 
 @receiver(pre_save, sender=Collaborator)
 def pre_save_project_group(sender, instance, *args, **kwargs):
   _status = instance.status
-  if _status == 'Joined' or _status =='Leave' or _status =='Declined' :
+  if _status == 'Joined' or _status =='Leave' or _status =='Removed'  or _status =='Declined':
     instance.is_active = False
   elif _status == 'Invited':
     instance.is_active = True
 
+@receiver(post_save, sender=Collaborator)
+def post_save_project_group(sender, instance, created, *args, **kwargs):
+  _sender = instance.inviter
+  _receiver = instance.name
+  _project = instance.project
+  _status = instance.status
+  if created:
+    if _project.created_by == _receiver:
+      instance.status = 'Joined'
+      instance.save()
+    else:
+      instance.status = 'Invited'
+      instance.save()
 
+  if not created and not _project.created_by == _receiver:
+    if _status == 'Joined':
+      _project.collaborators.add(instance)
+      _receiver.joined_projects.add(_project)
+    elif _status =='Leave':
+      _project.collaborators.remove(instance)
+      _receiver.joined_projects.remove(_project)
+    elif _status =='Removed' :
+      _project.collaborators.remove(instance)
+      _receiver.joined_projects.remove(_project)
+    elif _status =='Declined' :
+      _project.collaborators.remove(instance)
+      _receiver.joined_projects.remove(_project)
+      
 
-
-# @receiver(post_save, sender=Collaborator)
-# def post_save_project_group(sender, instance, created, *args, **kwargs):
-#   _sender = instance.inviter
-#   _receiver = instance.collaborator
-#   _status = instance.status
-#   if not created:
-#     if _status == 'Joined':
-
-    # if _status =='Leave':
-    #   if _status =='Declined' :
-    #   if _status =='Invited' :
-  
 
 
 
