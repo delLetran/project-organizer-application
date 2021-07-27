@@ -31,16 +31,32 @@ from .models import Associate
 
 
 
-class AssociateSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = User
-    fields = [ 'id', 'username', 'first_name', 'last_name', 'job_title']
-
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
     fields = [ 'id', 'username', 'first_name', 'last_name', 'job_title']
 
+class AssociateSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Associate
+    fields = [ 'id', 'sender', 'receiver', 'status']
+
+class ReceivedInviteSerializer(serializers.ModelSerializer):
+  sender = UserSerializer(read_only=True)
+  class Meta:
+    model = Associate
+    fields = [ 'id', 'sender', 'status']
+
+class SentInviteSerializer(serializers.ModelSerializer):
+  receiver = UserSerializer(read_only=True)
+  class Meta:
+    model = Associate
+    fields = [ 'id', 'receiver', 'status']
+
+class PeerUpdateSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Associate
+    fields = ['sender']
 
 class PeerCreateSerializer(serializers.ModelSerializer):
   class Meta:
@@ -50,7 +66,7 @@ class PeerCreateSerializer(serializers.ModelSerializer):
       UniqueTogetherValidator(
         queryset=Associate.objects.all(),
         fields=('sender', 'receiver'),
-        message=_("User already sent you an invite.")
+        message=_("Invite has already been sent to this user.")
       )
     ]
 

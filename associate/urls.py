@@ -1,20 +1,30 @@
 
 from django.urls import path
 from .views import (
-  # test_view,
-  user_associates_list_view,
-  user_mutual_associates_list_view,
-  user_accept_associate_view,
-  associate_invite_view,
-  # user_mutual_associates_detail_view,
-)
+  invite_view,
+  accept_invite_view,
+  decline_invite_view,
+  cancel_invite_view,
+  dissociate_view,
+  sent_invites_view,
+  received_invites_view,
 
+  list_view,
+  mutual_list_view,
+  user_mutual_list_view,
+)
+app_name='associate'
 urlpatterns = [
-  # path('api/test/', test_view, name="_test_"),
-  path('api/associate/list/', user_associates_list_view, name="associate-list"),
-  path('api/associate/mutual/', user_mutual_associates_list_view, name="associate-mutual-list"),
-  path('api/associate/invite/', associate_invite_view, name="associate-invite"),
-  path('api/associate/accept/<str:username>/', user_accept_associate_view, name="associate-accept"),
+  path('api/associate/<str:invitee>/invite/', invite_view, name="invite"),
+  path('api/associate/<str:inviter>/accept/', accept_invite_view, name="accept"),
+  path('api/associate/<str:inviter>/decline/', decline_invite_view, name="decline"),
+  path('api/associate/<str:invitee>/cancel/', cancel_invite_view, name="cancel"),
+  path('api/associate/<str:associate>/dissociate/', dissociate_view, name="dissociate"),
+  path('api/associate/sent-invites/', sent_invites_view, name="sent-invites"),
+  path('api/associate/received-invites/', received_invites_view, name="received-invites"),
+  path('api/associate/list/', list_view, name="list"),
+  path('api/associate/mutual-list/', mutual_list_view, name="mutual-list"),
+  path('api/associate/mutual/<str:username>/', user_mutual_list_view, name="user-mutual-list"),
   # path('api/associates/mutual/<str:username>/', user_mutual_associates_detail_view, name="associates-mutual"),
 
 ]

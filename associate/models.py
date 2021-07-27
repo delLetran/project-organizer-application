@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
 
@@ -16,7 +17,7 @@ class Associate(models.Model):
     ACCEPTED = 'Accepted',
     DECLINED = 'Declined',
     DISSOCIATED = 'Dissociated'
-  sender = models.ForeignKey(USER, verbose_name=_("sender"), related_name="sender", on_delete=models.DO_NOTHING)
+  sender = models.ForeignKey(USER, verbose_name=_("sender"), related_name="sender", on_delete=models.DO_NOTHING, blank=True, null=True)
   receiver = models.ForeignKey(USER, verbose_name=_("receiver"), related_name="receiver", on_delete=models.DO_NOTHING)
   is_active = models.BooleanField(_("invitation active"), default=True)
   status = models.CharField(_("invite status"), max_length=50, choices=STATUS.choices, blank=True, null=True)
@@ -31,32 +32,29 @@ class Associate(models.Model):
     verbose_name = 'Associate'
     verbose_name_plural = 'Associates'
 
-  def get_sent_invites(self, user):
-    return self.objects.filter(sender=user)
-
-  def get_invite_status(self, pk):
-    return self.objects.status(pk=pk)
-
   def accept_peer_invite(self):
     self.status = self.STATUS.ACCEPTED
     self.save()
-    return True
+    return self.status
 
-  def create_peer_invite(self, sender, receiver):
-    peer = Associate(
-      sender=sender,
-      receiver=receiver,
-      # status = self.STATUS.ONHOLD
-    )
+  def decline_peer_invite(self):
+    self.status = self.STATUS.DECLINED
     self.save()
-    return True
-  #   invite = self.get_received_invite(user)
-  #   invite.status =  'Accepted'
-  #   return f'{user} peer invite accepted'
-  #   # invite_instance = Associate.objects.get(Associate.objects.filter())
+    return self.status
 
+  def cancel_peer_invite(self):
+    self.status = self.STATUS.DISSOCIATED
+    self.save()
+    return 'Cancelled'
 
-    
+  def dissociate_peer(self):
+    self.status = self.STATUS.DISSOCIATED
+    self.save()
+    return self.status
+
+  # def cancel_peer_invite(self):
+  #   self.delete()
+  #   return self.status
 
 @receiver(pre_save, sender=Associate)
 def pre_save_associate(sender, instance, *args, **kwargs):
@@ -85,10 +83,12 @@ def post_save_associate(sender, instance, created, *args, **kwargs):
     elif _status=='Declined':
       _sender.associates.remove(_receiver)
       _receiver.associates.remove(_sender)
+      instance.delete()
 
     elif _status=='Dissociated':
       _sender.associates.remove(_receiver)
       _receiver.associates.remove(_sender)
+      instance.delete()
 
 
 @receiver(m2m_changed, sender=USER.associates.through)
