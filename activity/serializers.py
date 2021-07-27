@@ -37,7 +37,6 @@ class ActivitySerializer(serializers.ModelSerializer):
   # tasks = TaskSerializer(read_only=True, many=True)
   # project = ProjectSerializer(read_only=True)
 
-
   class Meta:
     model = Activity
     fields = ["name", "status", "tasks", "project", "created_by"]
