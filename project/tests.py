@@ -12,168 +12,38 @@ User = get_user_model()
 from collaborator.models import Collaborator
 
 
-class ProjectUpdateTest(APITestCase):
-  def setUp(self):
-    self.client = APIClient()
-    self.another_client = APIClient()
-    self.invalid_project = {
-      "name":"invalid_project"
-    }
-    self.test_project1 = {
-        "name": "Test project 1",
-        "description": "Project testing ",
-        "status": 1,
-        "project_type": 3
-    }
-    self.test_project2 = {
-        "name": "Test project 2",
-        "description": "Project testing ",
-        "status": 2,
-        "project_type": 2
-    }
-    self.test_project3 = {
-        "name": "Test project3",
-        "description": "Project changed_created_by ",
-        "created_by": 3,
-        "status": 1,
-        "project_type": 3
-    }
-    self.test_project4 = {
-        "name": "Test project 4 ",
-        "description": "Project changed_created_by ",
-        "created_by": 3,
-        "status": 1,
-        "project_type": 3
-    }
-    self.test_user1 = User.objects.create_user(
-      email='test_user1@gmail.com',
-      username='testuser1',
-      first_name='test',
-      last_name='user1',
-      password='@l03e1t1',
-      is_staff=True,
-      is_active=True
-    )
-    self.test_user2 = User.objects.create_user(
-      email='test_user2@gmail.com',
-      username='testuser2',
-      first_name='test',
-      last_name='user1',
-      password='@l03e1t1',
-      is_active=True
-    )
-    self.client.login(email=self.test_user1.email, password='@l03e1t1')
-    self.project_1 = self.client.post(
-      reverse('project-create'),
-      self.test_project1,
-      format='json'
-    )
-    self.project_2 = self.client.post(
-      reverse('project-create'),
-      self.test_project2,
-      format='json'
-    )
-    self.project_3 = self.client.post(
-      reverse('project-create'),
-      self.test_project3,
-      format='json'
-    )
-    self.another_client.login(email=self.test_user2.email, password='@l03e1t1')
-    self.project_4 = self.another_client.post(
-      reverse('project-create'),
-      self.test_project4,
-      format='json'
-    )
-
-class ProjectGetTest(APITestCase):
-  def setUp(self):
-    self.client = APIClient()
-    self.another_client = APIClient()
-    self.invalid_project = {
-      "name":"invalid_project"
-    }
-    self.test_project1 = {
-        "name": "Test project 1",
-        "description": "Project testing ",
-        "status": 1,
-        "project_type": 3
-    }
-    self.test_project2 = {
-        "name": "Test project 2",
-        "description": "Project testing ",
-        "status": 2,
-        "project_type": 2
-    }
-    self.test_project3 = {
-        "name": "Test project3",
-        "description": "Project changed_created_by ",
-        "created_by": 3,
-        "status": 1,
-        "project_type": 3
-    }
-    self.test_project4 = {
-        "name": "Test project 4 ",
-        "description": "Project changed_created_by ",
-        "created_by": 3,
-        "status": 1,
-        "project_type": 3
-    }
-    self.test_user1 = User.objects.create_user(
-      email='test_user1@gmail.com',
-      username='testuser1',
-      first_name='test',
-      last_name='user1',
-      password='@l03e1t1',
-      is_staff=True,
-      is_active=True
-    )
-    self.test_user2 = User.objects.create_user(
-      email='test_user2@gmail.com',
-      username='testuser2',
-      first_name='test',
-      last_name='user1',
-      password='@l03e1t1',
-      is_active=True
-    )
-    self.client.login(email=self.test_user1.email, password='@l03e1t1')
-    self.project_1 = self.client.post(
-      reverse('project-create'),
-      self.test_project1,
-      format='json'
-    )
-    self.project_2 = self.client.post(
-      reverse('project-create'),
-      self.test_project2,
-      format='json'
-    )
-    self.project_3 = self.client.post(
-      reverse('project-create'),
-      self.test_project3,
-      format='json'
-    )
-    self.another_client.login(email=self.test_user2.email, password='@l03e1t1')
-    self.project_4 = self.another_client.post(
-      reverse('project-create'),
-      self.test_project4,
-      format='json'
-    )
-  def test_get_project_list(self):
-    response = self.client.get( reverse('project-list'))
-    self.assertEqual(len(response.data), 3)
-
-
 class ProjectTest(APITestCase):
   def setUp(self):
-    self.client = APIClient()
+    self.client_1 = APIClient()
+    self.client_2 = APIClient()
     self.invalid_project = {
       "name":"invalid_project"
     }
-    self.existing_project = {
-        "name": "Existing Project",
-        "description": "Project Existing ",
-        # "slug":"existing-project-slug-1",
-        "status": 1,
-        "project_type": 3
+    self.test_project_1 = {
+      "name": "Test project 1",
+      "description": "Project test 1",
+      "status": 1,
+      "project_type": 3
+    }
+    self.test_project_2 = {
+      "name": "Test project 2",
+      "description": "Project test 2",
+      "status": 2,
+      "project_type": 2
+    }
+    self.test_project_3 = {
+      "name": "Test project 3",
+      "description": "Project test 3",
+      "created_by": 3,
+      "status": 1,
+      "project_type": 3
+    }
+    self.test_project_4 = {
+      "name": "Test project 4 ",
+      "description": "Project test 4",
+      "created_by": 3,
+      "status": 1,
+      "project_type": 3
     }
     self.test_user1 = User.objects.create_user(
       email='test_user1@gmail.com',
@@ -192,79 +62,189 @@ class ProjectTest(APITestCase):
       password='@l03e1t1',
       is_active=True
     )
-    self.test_user3 = User.objects.create_user(
-      email='test_user3@gmail.com',
-      username='testuser3',
-      first_name='test',
-      last_name='user1',
-      password='@l03e1t1',
-      is_active=True
-    )
-    self.client.login(email=self.test_user1.email, password='@l03e1t1')
-    self.existing_project_response = self.client.post(
-      reverse('project-create'),
-      self.existing_project,
+    self.client_1.login(email=self.test_user1.email, password='@l03e1t1')
+    self.client_2.login(email=self.test_user2.email, password='@l03e1t1')
+
+    self.project_1 = self.client_1.post(
+      reverse('project:create'),
+      self.test_project_1,
       format='json'
     )
-    # print(self.existing_project_response.data)
-    self.test_project2 = {
-        "name": "Test project 1",
-        "description": "Project testing ",
-        "status": 1,
-        "project_type": 3
+    self.project_2 = self.client_1.post(
+      reverse('project:create'),
+      self.test_project_2,
+      format='json'
+    )
+    self.project_3 = self.client_1.post(
+      reverse('project:create'),
+      self.test_project_3,
+      format='json'
+    )
+    self.project_4 = self.client_2.post(
+      reverse('project:create'),
+      self.test_project_4,
+      format='json'
+    )
+
+    self.test_new_project_1 = {
+      "name": "Test new project 1",
+      "description": "New project",
+      "project_type": 3
     }
-    self.test_project3 = {
-        "name": "Test project3",
-        "description": "Project changed_created_by ",
-        "created_by": 3,
-        "status": 1,
-        "project_type": 3
+    self.test_project_invalid_project_type = {
+      "name": "Test project invalid type",
+      "description": "New project",
+      "project_type": 500
+    }
+    self.test_project_invalid_status = {
+      "name": "Test project invalid type",
+      "description": "New project",
+      "status": 500
+    }
+    self.test_update = {
+      "name": "Test project 1 updated",
+      "description": "Project testing updated",
+      "status": 1,
+      "project_type": 3
+    }
+    self.test_update_same_data = {
+      "name": "Test project 1",
+      "description": "Project testing ",
+      "status": 1,
+      "project_type": 3
+    }
+    self.test_update_existing_name = {
+      "name": "Test project 2",
+      "description": "Project testing ",
+      "status": 1,
+      "project_type": 3
     }
 
-    self.existing_project_by_user = {
-        "name": "Existing Project",
-        "description": "Project testing ",
-        "status": 1,
-        "project_type": 3
-    }
+
+  ''' 
+    coverage run --source='.' manage.py test project.tests.ProjectTest
+    coverage run --source='.' manage.py test project.tests.ProjectTest.test_create_project_will_add_creator_as_project_admin
+    coverage run --source='.' manage.py test project.tests.ProjectTest.test_project_create_invalid_project_type
+  
+  '''
+
+  def test_project_delete_not_found_instance(self):
+    response = self.client_1.delete(
+      reverse('project:delete', kwargs={'slug':f'not_found_instance_slug'})
+    )
+    self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+  def test_project_delete(self):
+    project_1 = Project.objects.get(pk=1)
+    response = self.client_1.delete(
+      reverse('project:delete', kwargs={'slug':f'{project_1.slug}'})
+    )
+    self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+  def test_project_delete_get_method(self):
+    project_1 = Project.objects.get(pk=1)
+    response = self.client_1.get(
+      reverse('project:delete', kwargs={'slug':f'{project_1.slug}'})
+    )
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(response.data['name'], 'Test project 1')
+
+  def test_project_update_invalid(self):
+    project_1 = Project.objects.get(pk=1)
+    response = self.client_1.put(
+      reverse('project:update', kwargs={'slug':f'{project_1.slug}'}),
+      data=self.test_project_3,
+      format='json'
+    )
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+  def test_project_update(self):
+    project_1 = Project.objects.get(pk=1)
+    response = self.client_1.put(
+      reverse('project:update', kwargs={'slug':f'{project_1.slug}'}),
+      data=self.test_update,
+      format='json'
+    )
+    self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    self.assertEqual(response.data['name'], 'Test project 1 updated')
+
+  def test_project_update_get_method(self):
+    project_1 = Project.objects.get(pk=1)
+    response = self.client_1.get(
+      reverse('project:update', kwargs={'slug':f'{project_1.slug}'})
+    )
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(response.data['name'], 'Test project 1')
+
+  def test_create_project_will_add_creator_as_project_admin(self):
+    response = self.client_1.post(
+      reverse('project:create'),
+      self.test_new_project_1,
+      format='json'
+    )
+    project = Project.objects.get(pk=response.data['id'])
+    collaborators = project.collaborators.all()
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertEqual(collaborators[0].name.username, self.test_user1.username)
+    self.assertEqual(collaborators[0].position, 1)
+
+  def test_project_create_existing_name_by_another_user(self):
+    response = self.client_2.post(
+      reverse('project:create'),
+      self.test_project_2,
+      format='json'
+      )
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+  def test_project_create_invalid_status(self):
+    response = self.client_1.post(
+      reverse('project:create'),
+      self.test_project_invalid_status,
+      format='json'
+      )
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+  def test_project_create_invalid_project_type(self):
+    response = self.client_1.post(
+      reverse('project:create'),
+      self.test_project_invalid_project_type,
+      format='json'
+      )
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+  def test_project_create_existing_name_by_user(self):
+    response = self.client_1.post(
+      reverse('project:create'),
+      self.test_project_2,
+      format='json'
+      )
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+  def test_project_create(self):
+    response = self.client_1.post(
+      reverse('project:create'),
+      self.test_new_project_1,
+      format='json'
+      )
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertEqual(response.data['name'], 'Test new project 1')
+
+  def test_project_create_get_method(self):
+    project_1 = Project.objects.get(pk=1)
+    response = self.client_1.get(reverse('project:create'))
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(response.data['name'], '')
 
   def test_get_project_details(self):
     project_1 = Project.objects.get(pk=1)
-    existing_project_slug = project_1.slug
     response = self.client.get(
-      reverse('project-details', kwargs={'slug':existing_project_slug})
+      reverse('project:details', kwargs={'slug':f'{project_1.slug}'})
     )
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     self.assertEqual(response.data["created_by"]["username"], self.test_user1.username)
 
-  def test_create_project(self): 
-    response = self.client.post(
-      reverse('project-create'),
-      self.test_project2,
-      format='json'
-    )
-    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+  def test_get_project_list(self):
+    response = self.client_1.get( reverse('project:list'))
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(len(response.data), 3)
 
-  def _test_create_project_will_add_creator_as_project_admin(self):
-    collaborator = Collaborator.objects.get(pk=1)
-    response = self.client.post(
-      reverse('project-create'),
-      self.test_project2,
-      format='json'
-    )
-    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    self.assertEqual(collaborator.collaborator.username, self.test_user1.username)
-    self.assertEqual(collaborator.position, 1)
-
-  def test_create_existing_project_by_user(self):
-    response = self.client.post(
-      reverse('project-create'),
-      self.existing_project_by_user,
-      format='json'
-      )
-    print(response.data)
-    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-
-  # def test_add_collaborator(self):
-  #   self.test_project.add_collaborator(test_user2)

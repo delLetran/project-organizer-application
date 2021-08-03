@@ -6,13 +6,13 @@ from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 import json
 
+from project.models import Project
 from .models import Activity
 from task.models import Task
-from project.models import Project
 User = get_user_model()
 
 
-class ActvityTest(APITestCase):
+class ActivityTest(APITestCase):
   def setUp(self):
     self.client = APIClient()
     self.invalid_project = {
@@ -35,6 +35,11 @@ class ActvityTest(APITestCase):
       "status": 3,
       "project": 1
     }
+    self.existing_activity_2 = {
+      "name": "Existing activity 2",
+      "status": 3,
+      "project": 1
+    }
     self.test_user1 = User.objects.create_user(
       email='test_user1@gmail.com',
       username='testuser1',
@@ -54,25 +59,30 @@ class ActvityTest(APITestCase):
     #   is_active=True
     # )
     self.existing_project_res = self.client.post(
-      reverse('project-create'),
+      reverse('project:create'),
       self.existing_project,
       format='json'
     )
     self.existing_project_2_res = self.client.post(
-      reverse('project-create'),
+      reverse('project:create'),
       self.existing_project_2,
       format='json'
     )
     self.existing_activty_res = self.client.post(
-      reverse('activity-create'),
+      reverse('activity:create'),
       self.existing_activity,
       format='json'
     )
-    project_instance = Project.objects.get(pk=1)
+    self.existing_activty_2_res = self.client.post(
+      reverse('activity:create'),
+      self.existing_activity_2,
+      format='json'
+    )
+    self.project_instance = Project.objects.get(pk=1)
     self.test_activity1= {
         "name": "Test project 1",
         "status": 3,
-        "project": project_instance.id
+        "project": self.project_instance.id
     }
     self.test_invalid_activity= {
         "name": "",
@@ -89,22 +99,25 @@ class ActvityTest(APITestCase):
       "project": 1 
     }
 
+
+  '''
+  coverage run --source='.' manage.py test activity.tests.ActivityTest.test_list_activity
+  '''
     
   def test_delete_activity(self): 
-    # url = f'api/activity/{1}/update'
-    response = self.client.delete(reverse('activity-delete', kwargs={'id':1}))
+    response = self.client.delete(reverse('activity:delete', kwargs={'id':1}))
     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    response = self.client.get(reverse('activity-detail', kwargs={'id':1}))
+    response = self.client.get(reverse('activity:detail', kwargs={'id':1}))
     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
   def test_delete_get_method(self): 
-    response = self.client.get(reverse('activity-delete', kwargs={'id':1} ))
+    response = self.client.get(reverse('activity:delete', kwargs={'id':1} ))
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     
   def test_update_invalid_activity(self): 
     response = self.client.put(
-      reverse('activity-update', kwargs={'id':1}),
+      reverse('activity:update', kwargs={'id':1}),
       self.test_invalid_activity,
       format='json'
     )
@@ -112,19 +125,19 @@ class ActvityTest(APITestCase):
     
   def test_update_activity(self): 
     response = self.client.put(
-      reverse('activity-update', kwargs={'id':1}),
+      reverse('activity:update', kwargs={'id':1}),
       self.test_update_activity,
       format='json'
     )
     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
     
   def test_update_get_method(self): 
-    response = self.client.get(reverse('activity-update', kwargs={'id':1} ))
+    response = self.client.get(reverse('activity:update', kwargs={'id':1} ))
     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
   def test_create_invalid_activity(self): 
     response = self.client.post(
-      reverse('activity-create'),
+      reverse('activity:create'),
       self.test_invalid_activity,
       format='json'
     )
@@ -132,7 +145,7 @@ class ActvityTest(APITestCase):
 
   def test_create_existing_activity(self): 
     response = self.client.post(
-      reverse('activity-create'),
+      reverse('activity:create'),
       self.test_existing_activity,
       format='json'
     )
@@ -140,16 +153,25 @@ class ActvityTest(APITestCase):
 
   def test_create_activity(self): 
     response = self.client.post(
-      reverse('activity-create'),
+      reverse('activity:create'),
       self.test_activity1,
       format='json'
     )
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
   def test_create_get_method(self): 
-    response = self.client.get(reverse('activity-create'))
+    response = self.client.get(reverse('activity:create'))
     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
   def test_details_activity(self): 
-    response = self.client.get(reverse('activity-detail', kwargs={'id':1}))
+    response = self.client.get(reverse('activity:detail', kwargs={'id':1}))
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+  def test_list_activity_not_found_project(self): 
+    response = self.client.get(reverse('activity:list', kwargs={'project_id':500}))
+    self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+  def test_list_activity(self): 
+    project_instance = Project.objects.get(pk=1)
+    response = self.client.get(reverse('activity:list', kwargs={'project_id':project_instance.id}))
     self.assertEqual(response.status_code, status.HTTP_200_OK)

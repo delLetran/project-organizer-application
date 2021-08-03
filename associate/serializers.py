@@ -71,11 +71,12 @@ class PeerCreateSerializer(serializers.ModelSerializer):
     ]
 
   def validate(self, data):
+    user = data['sender']
     has_received_an_invite  = Associate.objects.all().filter(
       sender=data['receiver'], 
-      receiver=data['sender']
+      receiver=user
     ).exists()
     if has_received_an_invite :
-      raise serializers.ValidationError("User already sent you an invite.")
+      raise serializers.ValidationError(f"{user} already sent you an invite.")
     return data
 

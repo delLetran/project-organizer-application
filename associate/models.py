@@ -76,7 +76,11 @@ def post_save_associate(sender, instance, created, *args, **kwargs):
     instance.status='Waiting' 
     instance.save()
   if not created:
-    if _status=='Accepted':
+    if _status=='Waiting':
+      _sender.associates.remove(_receiver)
+      _receiver.associates.remove(_sender)
+
+    elif _status=='Accepted':
       _sender.associates.add(_receiver)
       _receiver.associates.add(_sender)
 

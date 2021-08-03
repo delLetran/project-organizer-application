@@ -1,0 +1,37 @@
+new repo:
+  echo "# mysite" >> README.md
+  git init
+  git add README.md
+  git commit -m "first commit"
+  git branch -M main
+  git remote add origin https://github.com/delLetran/mysite.git
+  git push -u origin main
+
+
+
+  git remote set-url/add/rm origin https://github.com/delletran/repo_nam.git
+  git commit -a/-m/-am "commmit message
+
+
+existing repo: (push an existing repository from the command line)
+  git remote set-url origin https://github.com/delletran/repo_nam.git
+  git branch -M main
+  git push -u origin main
+
+Basic
+  git add -- ./myfolder
+  git commit -m 'my comment' -- ./myfolder
+
+With more files and dirs
+  git add -- ./myfolder1 ./myfolder2./some/random/file.txt
+  git commit -m'cool' -- ./myfolder1 ./myfolder2 ./some/random/file.txt
+
+What I was looking for git bare repo
+  git --git-dir=path/to/my/repo --work-tree=path/to/my/working/tree add -- ./myfolder
+  git --git-dir=path/to/my/repo --work-tree=path/to/my/working/tree commit -m'my comment' -- ./myfolder
+
+
+
+heroku:
+
+  git remote add origin https://git.heroku.com/delletran.git 

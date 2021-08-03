@@ -80,28 +80,47 @@ class Project(models.Model):
   def __str__(self):
     return self.name
 
+# @receiver(pre_save, sender=Project)
+# def pre_save_project(sender, instance, *args, **kwargs): 
+#   _user = instance.created_by
+#   collaborator_instance = None
+#   try:
+#     collaborator_instance = Collaborator.objects.get(
+#       project=instance,
+#       name=_user,
+#       inviter=_user
+#     )
+#     collaborator_instance.save()
+#     print("--collaborator_instance: ", collaborator_instance)
+#     # instance.collaborators.add(collaborator_instance)
+#     # print("--project_instance: ", instance)
+#     # print("--project_instance_collaborators: ", instance.collaborators)
+#   except:
+#     print("--collaborator_instance: ", "not found")
+# #   # if collaborator_instance:
+#   #   print(instance.collaborators)
+
+@receiver(m2m_changed, sender=Project.collaborators.through)
+def m2m_changed_project_collaborators(sender, instance, action, pk_set, *args, **kwargs):
+  for pk in pk_set:
+    if action =='post_remove':
+      collaborator_instance = Collaborator.objects.get(pk=pk)
+      if collaborator_instance.name == collaborator_instance.inviter:
+        instance.collaborators.add(collaborator_instance)
+
 @receiver(post_save, sender=Project)
 def post_save_project(sender, instance, created, position=1, *args, **kwargs):
   _user = instance.created_by
   if created:
     _user.projects.add(instance)
-    Collaborator.objects.create(
+    collaborator = Collaborator(
       project=instance,
-      name=instance.created_by,
-      inviter=instance.created_by,
-      position=position
+      name=_user,
+      inviter=_user,
+      position=position,
+      status='Joined'
     )
-
-
-
-
-
-
-
-
-
-
-
+    collaborator.save()
 
 
 # @receiver(post_save, sender=Collaborator)
@@ -111,10 +130,13 @@ def post_save_project(sender, instance, created, position=1, *args, **kwargs):
 #   _status = instance.status
 #   if not created:
 #     if _status == 'Joined':
+#       pass
 
-    # if _status =='Leave':
-    #   if _status =='Declined' :
-    #   if _status =='Invited' :
+#     if _status =='Leave':
+#       if _status =='Declined' :
+#         pass
+#       if _status =='Invited' :
+#         pass
   
 
 

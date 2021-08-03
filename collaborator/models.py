@@ -50,50 +50,85 @@ class Collaborator(models.Model):
   # permission_3 = models.BooleanField(_("document_permission"), default=True)
 
   class Meta:
-    unique_together = ['name', 'project']
+    # unique_together = ['name', 'project']
     verbose_name = _("Collaborator")
     verbose_name_plural = _("Collaborators")
 
   def __str__(self):
-    return f'{self.project} -- {self.name}'
+    return f'{self.name} @ {self.project}'
+
+  def accept_collaboration_invite(self):
+    self.status = self.STATUS.JOINED
+    self.save()
+    return self.status
+
+  def decline_collaboration_invite(self):
+    self.status = self.STATUS.DECLINED
+    self.save()
+    return self.status
+
+  def cancel_collaboration_invite(self):
+    self.status = self.STATUS.REMOVED
+    self.save()
+    return self.status
+
+  def remove_collaborator(self):
+    self.status = self.STATUS.REMOVED
+    self.save()
+    return self.status
+
+  def leave_project(self):
+    self.status = self.STATUS.LEAVED
+    self.save()
+    return self.status
+
  
 @receiver(pre_save, sender=Collaborator)
-def pre_save_project_group(sender, instance, *args, **kwargs):
+def pre_save_project_collaborator(sender, instance, *args, **kwargs):
+  _receiver = instance.name
+  _project = instance.project
   _status = instance.status
-  if _status == 'Joined' or _status =='Leave' or _status =='Removed'  or _status =='Declined':
+  if _project.created_by == _receiver:
+    instance.status = 'Joined'
+    # _project.collaborators.add(instance)
+
+  if _status == 'Joined' or _status =='Leaved' or _status =='Removed'  or _status =='Declined':
     instance.is_active = False
   elif _status == 'Invited':
     instance.is_active = True
+    
 
 @receiver(post_save, sender=Collaborator)
-def post_save_project_group(sender, instance, created, *args, **kwargs):
+def post_save_project_collaborator(sender, instance, created, *args, **kwargs):
   _sender = instance.inviter
   _receiver = instance.name
   _project = instance.project
   _status = instance.status
   if created:
     if _project.created_by == _receiver:
-      instance.status = 'Joined'
-      instance.save()
-    else:
-      instance.status = 'Invited'
-      instance.save()
-
-  if not created and not _project.created_by == _receiver:
-    if _status == 'Joined':
       _project.collaborators.add(instance)
-      _receiver.joined_projects.add(_project)
-    elif _status =='Leave':
-      _project.collaborators.remove(instance)
-      _receiver.joined_projects.remove(_project)
-    elif _status =='Removed' :
-      _project.collaborators.remove(instance)
-      _receiver.joined_projects.remove(_project)
-    elif _status =='Declined' :
-      _project.collaborators.remove(instance)
-      _receiver.joined_projects.remove(_project)
       
+  if not created:
+    if _project.created_by == _receiver:
+      if _status == 'Joined':
+        _project.collaborators.add(instance)
 
+    if not _project.created_by == _receiver:
+      if _status == 'Joined':
+        _project.collaborators.add(instance)
+        _receiver.joined_projects.add(_project)
+      elif _status =='Leaved':
+        _project.collaborators.remove(instance)
+        _receiver.joined_projects.remove(_project)
+        instance.delete()
+      elif _status =='Removed':
+        _project.collaborators.remove(instance)
+        _receiver.joined_projects.remove(_project)
+        instance.delete()
+      elif _status =='Declined':
+        _project.collaborators.remove(instance)
+        _receiver.joined_projects.remove(_project)
+        instance.delete()
 
 
 

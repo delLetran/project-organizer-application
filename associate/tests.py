@@ -22,6 +22,7 @@ class AssociateTest(APITestCase):
     self.client_2 = APIClient()
     self.client_3 = APIClient()
     self.client_4 = APIClient()
+    self.client_5 = APIClient()
     self.test_user1 = User.objects.create_user(
       email='test_user1@gmail.com',
       username='testuser1',
@@ -71,12 +72,21 @@ class AssociateTest(APITestCase):
       password='@l03e1t1',
       is_active=True
     )
+    self.test_client5 = User.objects.create_user(
+      email='test_client5@gmail.com',
+      username='testclient5',
+      first_name='test',
+      last_name='client3',
+      password='@l03e1t1',
+      is_active=True
+    )
     self.client_inviter.login(email=self.test_user1.email, password='@l03e1t1')
     self.client_invitee.login(email=self.test_user2.email, password='@l03e1t1')
     self.client_1.login(email=self.test_client1.email, password='@l03e1t1')
     self.client_2.login(email=self.test_client2.email, password='@l03e1t1')
     self.client_3.login(email=self.test_client3.email, password='@l03e1t1')
     self.client_4.login(email=self.test_client4.email, password='@l03e1t1')
+    self.client_5.login(email=self.test_client5.email, password='@l03e1t1')
     self.client_1_invite_resp = self.client_1.post( reverse('associate:invite',
       kwargs={'invitee':f'{self.test_client2.username}'}), {}, format='json'
     )
@@ -95,14 +105,38 @@ class AssociateTest(APITestCase):
     self.client_3_accept_resp = self.client_3.put( reverse('associate:accept', 
       kwargs={'inviter':f'{self.test_client4.username}'}),{}, format='json'
     )
+    #mutual of client 3 & 4
+    self.client_5_invite_3_resp = self.client_5.post( reverse('associate:invite',
+      kwargs={'invitee':f'{self.test_client3.username}'}), {}, format='json'
+    )
+    self.client_5_invite_4_resp = self.client_5.post( reverse('associate:invite',
+      kwargs={'invitee':f'{self.test_client4.username}'}), {}, format='json'
+    )
+    self.client_3_accept_5_resp = self.client_3.put( reverse('associate:accept', 
+      kwargs={'inviter':f'{self.test_client5.username}'}),{}, format='json'
+    )
+    self.client_4_accept_5_resp = self.client_4.put( reverse('associate:accept', 
+      kwargs={'inviter':f'{self.test_client5.username}'}),{}, format='json'
+    )
+
+  """
+  coverage run --source='.' manage.py test associate.tests.AssociateTest
+  """
 
   # associate mutual list test
 
+  def test_associate_user_mutual_list_self_invalid(self):
+    response = self.client_3.get(
+      reverse('associate:associate-mutual-list', kwargs={'associate':f'{self.test_client3.username}'})
+    )
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
   def test_associate_user_mutual_list(self):
-    response = self.client_1.get(
-      reverse('associate:user-mutual-list', kwargs={'username':f'{self.test_client4.username}'})
+    response = self.client_3.get(
+      reverse('associate:associate-mutual-list', kwargs={'associate':f'{self.test_client4.username}'})
     )
     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertEqual(response.data[0]['username'], 'testclient5')
 
   # associate mutual list test
 
@@ -278,6 +312,9 @@ class AssociateTest(APITestCase):
     )
     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
+  """
+  coverage run --source='.' manage.py test associate.tests.AssociateTest.test_associate_invite_already_received
+  """
   def test_associate_invite_already_received(self):
     response = self.client_inviter.post(
       reverse('associate:invite', kwargs={'invitee':f'{self.test_user2.username}'}),
@@ -290,7 +327,7 @@ class AssociateTest(APITestCase):
       {}, format='json'
     )
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    with self.assertRaisesMessage(ValidationError, 'User already sent you an invite.'):
+    with self.assertRaisesMessage(ValidationError, f'{self.test_user2.username} already sent you an invite.'):
       data = {
         'sender': self.test_user2.pk,
         'receiver': self.test_user1.pk

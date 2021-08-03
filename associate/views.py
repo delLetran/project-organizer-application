@@ -12,6 +12,7 @@ from rest_framework.authentication import  SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.utils import is_str
+from .utils import get_mutual_associates_list
 from .models import Associate
 # from .forms import SignUpForm, UserUpdateForm
 from .serializers import UserSerializer
@@ -111,7 +112,6 @@ def dissociate_view(request, associate, *args, **kwargs):
       serializer = AssociateSerializer(associate_instance)
       return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
- 
 
 @api_view(['PUT', 'GET'])
 def cancel_invite_view(request, invitee, *args, **kwargs):
@@ -134,7 +134,6 @@ def cancel_invite_view(request, invitee, *args, **kwargs):
       return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
-
 @api_view(['GET'])
 def sent_invites_view(request, *args, **kwargs):
   invites = get_list_or_404(Associate, sender=request.user)
@@ -142,15 +141,12 @@ def sent_invites_view(request, *args, **kwargs):
     serializer = SentInviteSerializer(invites, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 @api_view(['GET'])
 def received_invites_view(request, *args, **kwargs):
   invites = get_list_or_404(Associate, receiver=request.user)
   if request.method == 'GET':
     serializer = ReceivedInviteSerializer(invites, many=True)    
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 
 @api_view(['GET'])
 def list_view(request, *args, **kwargs):
@@ -161,44 +157,17 @@ def list_view(request, *args, **kwargs):
     associates_list.append(associate_serializer.data)
   return Response(associates_list, status=status.HTTP_200_OK)
 
-
 @api_view(['GET'])
 def mutual_list_view(request, *args, **kwargs):
-  mutuals_list = request.user.get_associate_with_mutual_associates_list()
-  mutual_associates_list = []
-  for (profile, assocs) in mutuals_list:
-    profile_serializer = UserSerializer(profile)
-    assocs_serializer = UserSerializer(assocs, many=True)
-    data = {
-      'profile': profile_serializer.data,
-      'mutual_associates': assocs_serializer.data
-    }
-    mutual_associates_list.append(data)
-  return Response(mutual_associates_list, status=status.HTTP_200_OK)
-
+  associates_with_mutual_associates_list = get_mutual_associates_list(request.user)
+  return Response(associates_with_mutual_associates_list, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def user_mutual_list_view(request, username, *args, **kwargs):
+def associate_mutual_list_view(request, associate, *args, **kwargs):
   user = request.user
-  profile = get_object_or_404(User, username=username)
-  
-  if not User.objects.is_owner(request, username):
-    mutual_assocs = user.get_mutual_associates_details(profile)
+  _associate = get_object_or_404(User, username=associate)
+  if not user == _associate:
+    mutual_assocs = user.get_mutual_associates_details(_associate)
     serializer = UserSerializer(mutual_assocs, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-  return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# @api_view(['GET'])
-# def mutual_detail_view(request, username, *args, **kwargs):
-#   user = request.user
-#   profile = get_object_or_404(User, username=username)
-  
-#   if not User.objects.is_owner(request, username):
-#     mutual_assocs = user.get_mutual_associates_details(profile)
-#     print(mutual_assocs)
-#     serializer = UserSerializer(mutual_assocs, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-#   return Response(status=status.HTTP_204_NO_CONTENT)
-
-
+  return Response(status=status.HTTP_400_BAD_REQUEST) 

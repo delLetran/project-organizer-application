@@ -6,9 +6,24 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+# from core.utils import is_str
+from project.models import Project
 from .models import Activity
 from .serializers import ActivityCreateSerializer, ActivityUpdateSerializer, ActivitySerializer
 
+
+
+@api_view(['GET'])
+def activity_list_view(request, project_id, *args, **kwargs):
+  activities = get_list_or_404(Activity, project=project_id)
+  serializer = ActivitySerializer(activities, many=True) 
+  return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def activity_details_view(request, id, creator=None, *args, **kwargs):
+  activity = get_object_or_404(Activity, id=id)
+  serializer = ActivitySerializer(activity) 
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST', 'GET'])
@@ -25,11 +40,6 @@ def activity_create_view(request, *args, **kwargs):
     serializer = ActivityCreateSerializer()
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def activity_details_view(request, id, creator=None, *args, **kwargs):
-  activity = get_object_or_404(Activity, id=id)
-  serializer = ActivitySerializer(activity) 
-  return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'PUT'])
 def activity_update_view(request, id, *args, **kwargs):
@@ -47,14 +57,14 @@ def activity_update_view(request, id, *args, **kwargs):
     return Response({'test':'GET'}, status=status.HTTP_200_OK)
     
 
-
 @api_view(['GET', 'DELETE'])
 def activity_delete_view(request, id, *args, **kwargs):
   activity = get_object_or_404(Activity, id=id)
+  if request.method == 'DELETE':
+    activity.delete()
+    return Response({'activity':'Deleted.'}, status=status.HTTP_204_NO_CONTENT)
+    
   if request.method == 'GET':
     serializer = ActivitySerializer(activity)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-  if request.method == 'DELETE':
-    activity.delete()
-    return Response({'activity':'Deleted.'}, status=status.HTTP_204_NO_CONTENT)

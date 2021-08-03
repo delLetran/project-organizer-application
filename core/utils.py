@@ -36,6 +36,24 @@ def sendAsycnMail(email, token, *args, **kwargs ):
   task_id = async_task(SendEmailVerification, email, user, encoded_id, token)
   return task_id
 
+
+def is_str(data):
+  return (type(data) == str)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # def get_task_result(task_id):
 #   task = fetch(task_id)
 #   return result(task, wait=1000)

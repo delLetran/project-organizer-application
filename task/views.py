@@ -6,9 +6,25 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-from .models import Activity
-from .serializers import ActivitySerializer, ActivityCreateSerializer
+from task.models import Task
+from .serializers import TaskSerializer
+from .serializers import TaskCreateSerializer
+from .serializers import TaskUpdateSerializer
 
+
+
+@api_view(['GET'])
+def task_list_view(request, activity_id, *args, **kwargs):
+  tasks = get_list_or_404(Task, activity=activity_id)
+  serializer = TaskSerializer(tasks, many=True)
+  return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def task_details_view(request, id, *args, **kwargs):
+  task = get_object_or_404(Task, id=id)
+  serializer = TaskSerializer(task)
+  return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST', 'GET'])
@@ -16,14 +32,44 @@ def task_create_view(request, *args, **kwargs):
   if request.method == 'POST':
     data = request.data
     data['created_by'] = request.user.pk
-    serializer = ActivityCreateSerializer(data=data) 
+    serializer = TaskCreateSerializer(data=data) 
     if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
   if request.method == 'GET':
-    serializer = ActivityCreateSerializer()
+    serializer = TaskCreateSerializer()
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT', 'GET'])
+def task_update_view(request, id, *args, **kwargs):
+  task_instance = get_object_or_404(Task, id=id)
+  
+  if request.method == 'PUT':
+    serializer = TaskUpdateSerializer(data=request.data, instance=task_instance)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+  if request.method == 'GET':
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE', 'GET'])
+def task_delete_view(request, id, *args, **kwargs):
+  task_instance = get_object_or_404(Task, id=id)
+  
+  if request.method == 'DELETE':
+    task_instance.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+  if request.method == 'GET':
+    serializer = TaskSerializer(task_instance)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # @api_view(['GET'])
 # def project_details_view(request, slug, creator=None, *args, **kwargs):

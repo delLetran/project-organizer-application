@@ -16,7 +16,7 @@ class CustomUserAdmin(UserAdmin):
     (_('Projects '), {'fields': ( 'projects', 'joined_projects')}),
     # (_('Projects '), {'fields': ( 'projects', )}),
     (_('Qualifications'), {'fields': ( 'job_title', 'about')}),
-    # (_('Associates'), {'fields': ( 'associates', )}),
+    (_('Associates'), {'fields': ( 'associates', )}),
     (_('Permissions'), {
       'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
     }),

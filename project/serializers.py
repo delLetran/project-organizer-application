@@ -34,6 +34,11 @@ class CreatedBySerializer(serializers.ModelSerializer):
     model = User
     fields = [ 'id', 'username', 'job_title']
 
+class UserSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = User
+    fields = [ 'id', 'username', 'first_name', 'last_name' 'job_title']
+
 
 class TaskSerializer(serializers.ModelSerializer):
   class Meta:
@@ -52,8 +57,8 @@ class ActivitySerializer(serializers.ModelSerializer):
 
 class CollaboratorSerializer(serializers.ModelSerializer):
   class Meta:
-    model = User
-    fields = [ 'id', 'username', 'job_title']
+    model = Collaborator
+    fields = [ 'id', 'name', 'position', 'project', 'inviter', 'status']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -76,18 +81,19 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
     model = Project
     fields = ["name", "slug", "description", "status", "project_type", "created_by"]
     read_only_fields = ['created_by']
-    
-  # def validate(self, data):
-  # if data['start_date'] > data['end_date']:
-  #   raise serializers.ValidationError({"end_date": "finish must occur after start"})
-  # return data
-
+    validators = [
+      UniqueTogetherValidator(
+        queryset=Project.objects.all(),
+        fields=('name', 'created_by'),
+        message=_("User has already created a project with this name.")
+      )
+    ]
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Project
-    fields = ["name", "description", "status", "project_type", "created_by"]
+    fields = ["id", "name", "description", "status", "project_type", "created_by"]
     # write_only_fields=['created_by']
     validators = [
       UniqueTogetherValidator(

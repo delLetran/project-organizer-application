@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from .models import Project
-from .serializers import ProjectSerializer, ProjectCreateSerializer
+from .serializers import ProjectSerializer, ProjectCreateSerializer, ProjectUpdateSerializer
 from .decorators import decorator_test
 
 
@@ -18,7 +18,6 @@ from .decorators import decorator_test
 
   # add permission: project member, permission_type, creator
 @api_view(['GET'])
-@decorator_test
 def project_details_view(request, slug, creator=None, *args, **kwargs):
   project = get_object_or_404(Project, slug=slug)
   serializer = ProjectSerializer(project) 
@@ -46,22 +45,32 @@ def project_create_view(request, *args, **kwargs):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
     
-@api_view(['GET', 'UPDATE'])
+@api_view(['GET', 'PUT'])
 def project_update_view(request, slug, *args, **kwargs):
-  if request.method == 'UPDATE':
-    return Response({'test':'UPDATE'}, status=status.HTTP_200_OK)
-
+  project_instance = get_object_or_404(Project, slug=slug)
+  if request.method == 'PUT':
+    serializer = ProjectUpdateSerializer(data=request.data, instance=project_instance) 
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   if request.method == 'GET':
-    return Response({'test':'GET'}, status=status.HTTP_200_OK)
+    serializer = ProjectUpdateSerializer(instance=project_instance) 
+    return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 @api_view(['GET', 'DELETE'])
 def project_delete_view(request, slug, *args, **kwargs):
+  project_instance = get_object_or_404(Project, slug=slug)
   if request.method == 'DELETE':
-    return Response({'test':'DELETE'}, status=status.HTTP_200_OK)
+    project_instance.delete()
+    return Response({'test':'test'}, status=status.HTTP_204_NO_CONTENT)
 
   if request.method == 'GET':
-    return Response({'test':'GET'}, status=status.HTTP_200_OK)
+    serializer = ProjectSerializer(instance=project_instance) 
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 
 

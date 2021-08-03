@@ -11,7 +11,7 @@ from .views import (
 
   list_view,
   mutual_list_view,
-  user_mutual_list_view,
+  associate_mutual_list_view,
 )
 app_name='associate'
 urlpatterns = [
@@ -24,7 +24,7 @@ urlpatterns = [
   path('api/associate/received-invites/', received_invites_view, name="received-invites"),
   path('api/associate/list/', list_view, name="list"),
   path('api/associate/mutual-list/', mutual_list_view, name="mutual-list"),
-  path('api/associate/mutual/<str:username>/', user_mutual_list_view, name="user-mutual-list"),
+  path('api/associate/<str:associate>/mutual/', associate_mutual_list_view, name="associate-mutual-list"),
   # path('api/associates/mutual/<str:username>/', user_mutual_associates_detail_view, name="associates-mutual"),
 
 ]

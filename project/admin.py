@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Project
+from collaborator.models import Collaborator
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -9,3 +10,4 @@ class ProjectAdmin(admin.ModelAdmin):
     if not obj.created_by:
       obj.created_by = request.user
     obj.save()
+    

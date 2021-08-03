@@ -82,7 +82,7 @@ def post_save_task(sender, instance, created, *args, **kwargs):
   #   _activity = instance.activity
   # pk = 'pass in task creator here'
   # member = _activity.project.members.filter(USER.objects.get(pk=pk))
-  # is_member =member.exists()
+  # is_member = member.exists()
   if created:
     if _created_by == _activity.created_by:
       _activity.tasks.add(instance)
