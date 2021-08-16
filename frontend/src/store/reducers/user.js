@@ -4,7 +4,6 @@
 // 'AUTH_REFRESH' --> access token expired, get new pair token using refresh token
 // 'AUTH_LOGOUT'  --> refresh token expired
 
-import { user } from "."
 
 
 export const userInitialState = {
