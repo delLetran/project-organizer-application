@@ -16,7 +16,7 @@ urlpatterns = [
   path('api/project/create/', project_create_view, name="create"),
   path('api/project/list/', project_list_view, name="list"),
   # path('api/project/create-form/', project_create_form_view, name="create-form"),
-  path('api/project/<str:slug>/', project_details_view, name="details"),
-  path('api/project/<str:slug>/update/', project_update_view, name="update"),
-  path('api/project/<str:slug>/delete/', project_delete_view, name="delete"),
+  path('api/project/<int:pk>/', project_details_view, name="details"),
+  path('api/project/<int:pk>/update/', project_update_view, name="update"),
+  path('api/project/<int:pk>/delete/', project_delete_view, name="delete"),
 ]

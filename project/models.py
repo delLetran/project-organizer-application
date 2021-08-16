@@ -77,6 +77,11 @@ class Project(models.Model):
     )
     collaborator.save()
 
+    
+  def current_collaborators(self):
+    queryset = Collaborator.objects.filter(project=self)
+    return queryset
+
   def __str__(self):
     return self.name
 

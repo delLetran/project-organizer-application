@@ -37,7 +37,7 @@ class CreatedBySerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    fields = [ 'id', 'username', 'first_name', 'last_name' 'job_title']
+    fields = [ 'id', 'username', 'first_name', 'last_name', 'job_title']
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -56,6 +56,10 @@ class ActivitySerializer(serializers.ModelSerializer):
 
 
 class CollaboratorSerializer(serializers.ModelSerializer):
+  name = UserSerializer(read_only=True)
+  position = ChoicesSerializer(choices=Collaborator.POSITION.choices)
+  inviter = UserSerializer(read_only=True)
+
   class Meta:
     model = Collaborator
     fields = [ 'id', 'name', 'position', 'project', 'inviter', 'status']
@@ -65,7 +69,8 @@ class ProjectSerializer(serializers.ModelSerializer):
   created_by = CreatedBySerializer(read_only=True)
   status = ChoicesSerializer(choices=Project.STATUS.choices)
   project_type = ChoicesSerializer(choices=Project.TYPE.choices)
-  collaborators = CollaboratorSerializer(read_only=True, many=True)
+  collaborators = CollaboratorSerializer(read_only=True, many=True, source='current_collaborators')
+  # collaborators = CollaboratorSerializer( 'get_collaborators')
   activities = ActivitySerializer(read_only=True, many=True)
   # schedule = ScheduleSerializer(read_only=True)
 
@@ -75,6 +80,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     fields = ['id', 'name', 'slug', 'description', 'project_type', 'status', 'activities', 'created_by', 'collaborators']
   
 
+  
 class ProjectUpdateSerializer(serializers.ModelSerializer):
 
   class Meta:

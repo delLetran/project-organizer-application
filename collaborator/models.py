@@ -33,8 +33,8 @@ class Collaborator(models.Model):
     SPE = 5, _('Spectator')
 
   class STATUS(models.TextChoices):
-    ONHOLD = 'Invited', 
     JOINED = 'Joined',
+    ONHOLD = 'Invited', 
     LEAVED = 'Leaved',
     REMOVED = 'Removed',
     DECLINED = 'Declined'
@@ -51,6 +51,7 @@ class Collaborator(models.Model):
 
   class Meta:
     # unique_together = ['name', 'project']
+    ordering= ['position', '-status']
     verbose_name = _("Collaborator")
     verbose_name_plural = _("Collaborators")
 
