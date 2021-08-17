@@ -3,23 +3,39 @@ import { useDispatch } from 'react-redux'
 import { authCheckState } from './store/actions'
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import { TestComponent } from './tests';
+import { Login } from './components/auth'
+import { SignUp } from './components/auth'
+import Homepage from './pages/homepage'
+import { Project } from './pages/project_organizer';
 
+import { TestComponent } from './tests'
 
-function App() {
+const App = () => {
   const dispatch = useDispatch()
-   
+
   useEffect(() => {
-    dispatch(authCheckState())
-  })
+    dispatch(authCheckState()) 
+  },[])
 
   return (
     <div className="App">
-      <Router>
-        <Switch>
-          <Route exact={true} path="/" component={ ()=><TestComponent/> }/>
-        </Switch>  
-      </Router>
+        <header>
+        </header>
+        <div>
+          <Router>
+            <Switch>
+              <Route path='/' exact component={ Homepage } />
+              <Route path='/projects' component={ Project } />
+              <Route path='/associates' component={ Login } />
+
+              <Route path='/signin' component={ Login } />
+              <Route path='/signup' component={ SignUp } />
+
+              <Route path='/test' component={ TestComponent } />
+            </Switch>
+          </Router>
+        </div>
+
     </div>
   )
 }

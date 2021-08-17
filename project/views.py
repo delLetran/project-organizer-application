@@ -18,8 +18,8 @@ from .decorators import decorator_test
 
   # add permission: project member, permission_type, creator
 @api_view(['GET'])
-def project_details_view(request, slug, creator=None, *args, **kwargs):
-  project = get_object_or_404(Project, slug=slug)
+def project_details_view(request, pk, creator=None, *args, **kwargs):
+  project = get_object_or_404(Project, pk=pk)
   serializer = ProjectSerializer(project) 
   return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -46,8 +46,8 @@ def project_create_view(request, *args, **kwargs):
 
     
 @api_view(['GET', 'PUT'])
-def project_update_view(request, slug, *args, **kwargs):
-  project_instance = get_object_or_404(Project, slug=slug)
+def project_update_view(request, pk, *args, **kwargs):
+  project_instance = get_object_or_404(Project, pk=pk)
   if request.method == 'PUT':
     serializer = ProjectUpdateSerializer(data=request.data, instance=project_instance) 
     if serializer.is_valid():
@@ -60,8 +60,8 @@ def project_update_view(request, slug, *args, **kwargs):
     
 
 @api_view(['GET', 'DELETE'])
-def project_delete_view(request, slug, *args, **kwargs):
-  project_instance = get_object_or_404(Project, slug=slug)
+def project_delete_view(request, pk, *args, **kwargs):
+  project_instance = get_object_or_404(Project, pk=pk)
   if request.method == 'DELETE':
     project_instance.delete()
     return Response({'test':'test'}, status=status.HTTP_204_NO_CONTENT)

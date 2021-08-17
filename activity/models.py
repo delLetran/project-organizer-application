@@ -56,7 +56,6 @@ def post_save_activity(sender, instance, created, *args, **kwargs):
     if _created_by == _project.created_by:
       _project.activities.add(instance)
     
-
 # @receiver(post_save, sender=Task)
 # def post_save_task(sender, instance, created, *args, **kwargs):
 #   _created_by = instance.created_by

@@ -10,14 +10,29 @@ from project.models import Project
 User = get_user_model()
 
 
-# SentInviteSerializer
-# ReceivedInviteSerializer
 
-class CreatedBySerializer(serializers.ModelSerializer):
+class ChoicesSerializer(serializers.ChoiceField):
+  def to_representation(self, value):
+    if value in self.choices.keys():
+      return self.choices[value]
+
+    self.fail("invalid_choice", input=value)
+    return None
+
+  def to_internal_value(self, data):
+    for key, value in self.choices.items():
+      if value == data:
+        return key
+    self.fail("invalid_choice", input=data)
+    return None
+
+
+class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
     fields = [ 'id', 'username', 'job_title']
 
+    
 
 # class ProjectSerializer(serializers.ModelSerializer):
 #   class Meta:
@@ -26,21 +41,24 @@ class CreatedBySerializer(serializers.ModelSerializer):
 
 
 class CollaboratorSerializer(serializers.ModelSerializer):
+  name = UserSerializer(read_only=True)
+  position = ChoicesSerializer(choices=Collaborator.POSITION.choices)
   class Meta:
     model = Collaborator
-    fields = ["name", "project", "position", "status"]
+    fields = ["id", "name", "project", "position", "status", 'inviter']
 
 class CollaboratorUpdateSerializer(serializers.ModelSerializer):
+  position = ChoicesSerializer(choices=Collaborator.POSITION.choices)
   class Meta:
     model = Collaborator
-    fields = ["name", "project", "position"]
+    fields = ["id", "position"]
 
 class CollaboratorCreateSerializer(serializers.ModelSerializer):
-  # project = ProjectSerializer(write_only=True)
+  position = ChoicesSerializer(choices=Collaborator.POSITION.choices)
 
   class Meta:
     model = Collaborator
-    fields = ["name", "project", "position", "inviter"]
+    fields = ["id", "name", "project", "position", "status", 'inviter']
     # validators = [
     #   UniqueTogetherValidator(
     #     queryset=Project.objects.all(),

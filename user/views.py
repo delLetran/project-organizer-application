@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model
 # from rest_framework.decorators import permission_classes, 
 # from rest_framework.decorators import authentication_classes
-from core.utils import sendAsycnMail
+from core.utils import sendAsycnMail, SendEmailVerification
 from .tokens import create_token, get_user_token, is_user_token_expired
 from .forms import SignUpForm
 from .serializers import (
@@ -27,6 +27,13 @@ def user_details_view(request, username, *args, **kwargs):
     serializer = OwnerSerializer(profile)
   else:
     serializer = UserSerializer(profile)
+  return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def user_data_view(request, *args, **kwargs):
+  user = request.user
+  profile = get_object_or_404(User, username=request.user)
+  serializer = OwnerSerializer(profile)
   return Response(serializer.data, status=status.HTTP_200_OK)
 
 
