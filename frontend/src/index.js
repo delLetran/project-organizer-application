@@ -29,4 +29,4 @@ ReactDOM.render(
 );
 
 
-// reportWebVitals();
+reportWebVitals();
