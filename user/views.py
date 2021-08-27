@@ -12,8 +12,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model
-# from rest_framework.decorators import permission_classes, 
+from rest_framework.decorators import permission_classes
 from rest_framework.decorators import authentication_classes
+from rest_framework.decorators import throttle_classes
 from core.utils import sendAsycnMail, SendEmailVerification
 from .tokens import create_token, get_user_token, is_user_token_expired
 from .forms import SignUpForm
@@ -37,9 +38,11 @@ def user_details_view(request, username, *args, **kwargs):
   return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def user_data_view(request, *args, **kwargs):
   user = request.user
-  profile = get_object_or_404(User, username=request.user)
+  profile = get_object_or_404(User, username=user)
   serializer = OwnerSerializer(profile)
   return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -66,6 +69,8 @@ def user_signup_view(request, *args, **kwargs):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def user_activate_view(request, uid, token):
   decoded_id = force_text(urlsafe_base64_decode(uid))
   user = get_object_or_404(User, pk=decoded_id)
@@ -99,6 +104,8 @@ def user_resend_email_verification_view(request, *args, **kwargs):
 
 
 @api_view(['GET', 'PUT']) 
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def user_update_view(request, *args, **kwargs):
   user = get_object_or_404(User, username=request.user)
   if request.method == 'GET':
@@ -115,6 +122,8 @@ def user_update_view(request, *args, **kwargs):
 
 
 @api_view(['GET', 'PUT']) 
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def user_update_password_view(request, *args, **kwargs):
   if request.method == 'GET':
     serializer = ChangePasswordSerializer()
@@ -128,6 +137,8 @@ def user_update_password_view(request, *args, **kwargs):
 
 
 @api_view(['GET', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def user_delete_view(request, *args, **kwargs):
   user = get_object_or_404(User, username=request.user)
   if request.method == 'GET':
