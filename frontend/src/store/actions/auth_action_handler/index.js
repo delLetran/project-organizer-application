@@ -3,7 +3,8 @@ import {
   handleRefresh,
   handleSignUp,
   setAuthRefreshTimeout,
-  setAuthAccessTimeout
+  setAuthAccessTimeout,
+  authTokenRefresh
 } from "./authFetch"
 
 export {
@@ -11,5 +12,6 @@ export {
   handleRefresh,
   handleSignUp,
   setAuthRefreshTimeout,
-  setAuthAccessTimeout
+  setAuthAccessTimeout,
+  authTokenRefresh
 } 

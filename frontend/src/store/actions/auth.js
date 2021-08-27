@@ -6,6 +6,9 @@ import {
   setAuthAccessTimeout
 } from "./auth_action_handler"
 
+import { 
+  authTokenRefresh 
+} from "./auth_action_handler"
 
 import { 
   authLogout
@@ -36,6 +39,7 @@ export const authCheckState = () => {
       if (refreshExpiration <= new Date()){
         dispatch(authLogout())
       }else {
+        dispatch(authTokenRefresh())
         dispatch(setAuthRefreshTimeout((new Date(refreshExpiration).getTime() - new Date().getTime()) / 1000))
         dispatch(setAuthAccessTimeout())
       }

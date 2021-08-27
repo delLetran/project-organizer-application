@@ -2,13 +2,18 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import (
+  # BasicAuthentication, 
+  SessionAuthentication
+)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model
 # from rest_framework.decorators import permission_classes, 
-# from rest_framework.decorators import authentication_classes
+from rest_framework.decorators import authentication_classes
 from core.utils import sendAsycnMail, SendEmailVerification
 from .tokens import create_token, get_user_token, is_user_token_expired
 from .forms import SignUpForm
@@ -21,6 +26,8 @@ from .serializers import (
 User = get_user_model()
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication, SessionAuthentication])
 def user_details_view(request, username, *args, **kwargs):
   profile = get_object_or_404(User, username=username)
   if User.objects.is_owner(request, username):

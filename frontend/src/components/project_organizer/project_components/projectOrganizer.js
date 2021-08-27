@@ -7,6 +7,7 @@ import POAppBar from '../../appbar'
 import PODrawer from "../drawer"
 import POMain  from '../main'
 import { ProjectDrawer } from "../drawer"
+import { PageNotFound } from "../../../pages"
 
 import { Typography } from "@material-ui/core"
 import { Grid } from '@material-ui/core'
@@ -20,16 +21,17 @@ import { Box } from '@material-ui/system'
 // import { CardMedia } from '@material-ui/core' 
 import CssBaseline from '@material-ui/core/CssBaseline'
 
+
 const ProjectOrganizer = ({projects}) => {
   let { slug } = useParams()
   // const projects = useSelector(state => state.project.project_list)
-  let project = {}
+  let project = null
   try{
     project = projects.filter(project=>project.slug===slug)[0]
   }
   catch{}
 
-  return (
+  return ( project ?
     <Box sx={{ display: 'flex'}}>
       <CssBaseline />
         <POAppBar/>
@@ -69,6 +71,10 @@ const ProjectOrganizer = ({projects}) => {
           </div>
         </POMain>
     </Box>
+    : 
+    <PageNotFound/>
+    
+    // <Route path={`${path}/*`} component={PageNotFound}/>
   )
 }
 

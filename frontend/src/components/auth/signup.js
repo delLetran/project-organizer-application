@@ -4,10 +4,11 @@ import { useHistory } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { authSignUp } from '../../store/actions'
+import { authLogout } from '../../store/actions'
 
 import Button from '@material-ui/core/Button'
 import Avatar from '@material-ui/core/Avatar'
-import Badge from '@material-ui/core/Badge'
+// import Badge from '@material-ui/core/Badge'
 import { Box } from '@material-ui/core'
 import { FormControl } from '@material-ui/core'
 import { InputLabel } from '@material-ui/core'
@@ -16,19 +17,19 @@ import { IconButton } from '@material-ui/core'
 import { FilledInput } from '@material-ui/core'
 import { FormHelperText } from '@material-ui/core'
 import { Card } from '@material-ui/core'
-import { CardActions } from '@material-ui/core'
-import { CardHeader } from '@material-ui/core'
+// import { CardActions } from '@material-ui/core'
+// import { CardHeader } from '@material-ui/core'
 import { Typography } from '@material-ui/core'
 import { CardContent } from '@material-ui/core'
-import { Divider } from '@material-ui/core'
+// import { Divider } from '@material-ui/core'
 
 
-import AccountCircle from '@material-ui/icons/AccountCircle'
+// import AccountCircle from '@material-ui/icons/AccountCircle'
 import { LockOpen } from '@material-ui/icons'
 import { Visibility } from '@material-ui/icons'
 import { VisibilityOff } from '@material-ui/icons'
 
-export const SignUp = () => {
+export const SignUp = ({is_authenticated}) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const initial_state= {
@@ -50,6 +51,10 @@ export const SignUp = () => {
   useEffect(()=>{
     signup.error && setOnSubmit(false) 
   }, [signup])
+   
+  useEffect(()=>{
+    is_authenticated && dispatch(authLogout())
+  }, [])
    
   useEffect(()=>{
     signup.msg === 'SignUp Success' && history.push('/activate-account') 

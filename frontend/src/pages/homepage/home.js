@@ -17,7 +17,9 @@ const Homepage = () =>{
       <CssBaseline />
       <POAppBar />
       <PODrawer />
-      <POMain/>
+      <POMain>
+        Homepage
+      </POMain>
     </Box>
   )
 } 

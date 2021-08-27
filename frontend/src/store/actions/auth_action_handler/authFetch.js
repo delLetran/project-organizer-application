@@ -28,14 +28,15 @@ const setAuthRefreshTimeout = (refreshExpiration=tokenTimeout.refresh) => {
 
 const setAuthAccessTimeout = (accessExpiration=tokenTimeout.access) => {
   clearTimeout(tokenTimeout.accessTimer)
+  
   return dispatch => {
     tokenTimeout.accessTimer = setTimeout(() => {
-      dispatch(refresh())
+      dispatch(authTokenRefresh())
     }, accessExpiration * 1000)
   }
 }
 
-const refresh = () => {
+const authTokenRefresh = () => {
   return dispatch => {
     handleRefresh(dispatch)
   }
@@ -153,4 +154,5 @@ export {
   handleSignUp,
   setAuthRefreshTimeout,
   setAuthAccessTimeout,
+  authTokenRefresh,
 }

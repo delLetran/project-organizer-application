@@ -24,7 +24,7 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 
 
 const ProjectList = ({projects}) => {
-  let { path} = useRouteMatch()
+  let { path } = useRouteMatch()
   const history = useHistory()
   const [selected, setSelected] = useState(null)
   const [openView, setOpenView] = useState([true])

@@ -1,7 +1,8 @@
 // import updateObject from '../uitility'
 
 const initialState = {
-  project_list:null
+  project_list:[
+  ]
 }
 
 export const projectReducer = (state=initialState, action) => {

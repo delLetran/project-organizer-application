@@ -4,6 +4,7 @@ import { authReducer as auth } from './auth'
 import { dashboardReducer as dashboard } from './dashboard'
 import { projectReducer as project } from './project'
 import { userReducer as user } from './user'
+import { routerReducer as router } from './router'
 // import { collaboratorReducer as collaborator } from './projectCollaborators'
 // import { counterReducer as counter } from './counter'
 
@@ -12,6 +13,7 @@ const _reducers = combineReducers({
   dashboard,
   project,
   user,
+  router,
   // collaborator,
   // counter: counter,
 })
@@ -24,6 +26,7 @@ export {
   dashboard,
   project,
   user,
+  router,
   // collaborator,
   // counter,
 }
