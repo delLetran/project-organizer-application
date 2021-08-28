@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode,  urlsafe_base64_decode
 from django.contrib.auth import get_user_model
-# from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # from django.contrib.auth import authenticate
 from .serializers import UserSerializer, OwnerSerializer
@@ -17,6 +17,8 @@ import json
 User = get_user_model()
 # from django.conf import settings
 # User = settings.AUTH_USER_MODEL
+
+
 #Test Views
 
 class DeleteUserTest(APITestCase):
@@ -319,14 +321,13 @@ class GetDetailUserTest(APITestCase):
     )
     
     self.client.login(email=self.test_user1.email, password='@l03e1t1')
+    self.token = self.get_tokens_for_user(User.objects.get(email=self.test_user1.email))
+    self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token['access'])
+
 
   def test_get_invalid_user(self):
     response = self.client.get( reverse('user-details', kwargs={'username':'unknown_user'}))
     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-  def test_get_valid_user(self):
-    response = self.client.get( reverse('user-details', kwargs={'username':self.test_user1.username}))
-    self.assertEqual(response.status_code, status.HTTP_200_OK)
 
   def test_get_owner_data(self):
     response = self.client.get( reverse('user-details', kwargs={'username':self.test_user1.username}))
@@ -334,11 +335,25 @@ class GetDetailUserTest(APITestCase):
     serializer = OwnerSerializer(profile)
     self.assertEqual(response.data, serializer.data)
 
-  def test_get_other_profile_data(self):
+  def test_get_other_user_data(self):
     response = self.client.get( reverse('user-details', kwargs={'username':self.test_user2.username}))
-    profile = User.objects.get(pk=2)
+    profile = User.objects.get(email=self.test_user1.email)
     serializer = UserSerializer(profile)
     self.assertEqual(response.data, serializer.data)
+    
+  def test_get_user_data(self):
+    response = self.client.get( reverse('user-data'))
+    profile = User.objects.get(email=self.test_user1.email)
+    serializer = OwnerSerializer(profile)
+    self.assertEqual(response.data, serializer.data)
+
+  def get_tokens_for_user(self, user):
+    refresh = RefreshToken.for_user(user)
+    return {
+      'refresh': str(refresh),
+      'access': str(refresh.access_token),
+    }     
+
 
 
 class CreateUserTest(TestCase):
